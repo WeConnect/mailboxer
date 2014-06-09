@@ -8,6 +8,7 @@ class Mailboxer::Conversation < ActiveRecord::Base
   has_many :receipts, :through => :messages,  :class_name => "Mailboxer::Receipt"
 
   validates :subject, :presence => true,
+                      :uniqueness => true,
                       :length => { :maximum => Mailboxer.subject_max_length }
 
   before_validation :clean
