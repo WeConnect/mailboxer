@@ -5,6 +5,7 @@ class Conversation < ActiveRecord::Base
   has_many :receipts, :through => :messages
 
   validates_presence_of :subject
+  validates_uniqueness_of :subject
 
   before_validation :clean
 
