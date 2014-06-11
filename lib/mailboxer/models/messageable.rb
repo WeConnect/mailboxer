@@ -68,8 +68,8 @@ module Mailboxer
           :sender       => self,
           :conversation => convo,
           :recipients   => recipients,
-          :body         => msg_body,
-          :subject      => subject,
+          :encrypted_body         => msg_body.encrypt(:notification_cipher),
+          :encrypted_subject      => subject.encrypt(:notification_cipher),
           :attachment   => attachment,
           :created_at   => message_timestamp,
           :updated_at   => message_timestamp
@@ -86,8 +86,8 @@ module Mailboxer
           :sender       => self,
           :conversation => conversation,
           :recipients   => recipients,
-          :body         => reply_body,
-          :subject      => subject,
+          :encrypted_body         => reply_body.encrypt(:notification_cipher),
+          :encrypted_subject      => subject.encrypt(:notification_cipher),
           :attachment   => attachment
         }).build
 

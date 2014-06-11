@@ -1,8 +1,10 @@
 class Mailboxer::Message < Mailboxer::Notification
+  attr_accessible :encrypted_body, :encrypted_subject
   attr_accessible :attachment if Mailboxer.protected_attributes?
+
   self.table_name = :mailboxer_notifications
 
-  belongs_to :conversation, :class_name => "Mailboxer::Conversation", :validate => true, :autosave => true
+  belongs_to :conversation, :class_name => "Mailboxer::Conversation", :validate => true, :autosave => true, :counter_cache => true
   validates_presence_of :sender
 
   class_attribute :on_deliver_callback

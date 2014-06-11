@@ -1,17 +1,26 @@
 class Mailboxer::Notification < ActiveRecord::Base
+  # ===== ===== ===== ===== =====
+  # Encryption Extensions:
+  scope :unencrypted, -> { where('encrypted_subject is null or encrypted_body is null') }
+  def subject;         self.encrypted_subject.decrypt(:notification_cipher).force_encoding("UTF-8"); end
+  def subject=(value); self.encrypted_subject= value.encrypt(:notification_cipher); end
+  def body;            self.encrypted_body.decrypt(:notification_cipher).force_encoding("UTF-8"); end
+  def body=(value);    self.encrypted_body= value.encrypt(:notification_cipher); end
+  # ===== ===== ===== ===== =====
+  #
   self.table_name = :mailboxer_notifications
 
   attr_accessor :recipients
-  attr_accessible :body, :subject, :global, :expires if Mailboxer.protected_attributes?
+  attr_accessible :encrypted_body, :encrypted_subject, :body, :subject, :global, :expires if Mailboxer.protected_attributes?
 
   belongs_to :sender, :polymorphic => :true
   belongs_to :notified_object, :polymorphic => :true
   has_many :receipts, :dependent => :destroy, :class_name => "Mailboxer::Receipt"
 
-  validates :subject, :presence => true,
-                      :length => { :maximum => Mailboxer.subject_max_length }
-  validates :body,    :presence => true,
-                      :length => { :maximum => Mailboxer.body_max_length }
+  validates :encrypted_subject, :presence => true
+                      #:length => { :maximum => Mailboxer.subject_max_length }
+  validates :encrypted_body,    :presence => true
+                      #:length => { :maximum => Mailboxer.body_max_length }
 
   scope :recipient, lambda { |recipient|
     joins(:receipts).where('mailboxer_receipts.receiver_id' => recipient.id,'mailboxer_receipts.receiver_type' => recipient.class.base_class.to_s)
@@ -36,8 +45,8 @@ class Mailboxer::Notification < ActiveRecord::Base
     def notify_all(recipients, subject, body, obj = nil, sanitize_text = true, notification_code=nil, send_mail=true)
       notification = Mailboxer::NotificationBuilder.new({
         :recipients        => recipients,
-        :subject           => subject,
-        :body              => body,
+        :encrypted_body    => body.encrypt(:notification_cipher),
+        :encrypted_subject => subject.encrypt(:notification_cipher),
         :notified_object   => obj,
         :notification_code => notification_code
       }).build
