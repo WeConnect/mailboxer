@@ -5,7 +5,7 @@ class Mailboxer::Message < Mailboxer::Notification
   self.table_name = :mailboxer_notifications
 
   belongs_to :conversation, :class_name => "Mailboxer::Conversation", :validate => true, :autosave => true, :counter_cache => true
-  counter_culture :conversation
+  counter_culture :conversation, :column_name => "messages_count"
   validates_presence_of :sender
 
   class_attribute :on_deliver_callback
