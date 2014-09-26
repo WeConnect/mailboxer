@@ -47,6 +47,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency('forgery', '>= 0.3.6')
   # Integration testing
   s.add_development_dependency('capybara', '>= 0.3.9')
+  # Avoid counter cache
+  s.add_development_dependency('counter_culture', '~> 0.1.23')
+
   # Testing database
   if RUBY_PLATFORM == 'java'
     s.add_development_dependency('jdbc-sqlite3')
