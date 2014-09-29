@@ -48,4 +48,16 @@ class Mailboxer::Message < Mailboxer::Notification
     end
     sender_receipt
   end
+
+  def save_only(reply = false, should_clean = true)
+    self.clean if should_clean
+
+    sender_receipt = build_receipt(sender, 'sentbox', true)
+
+    if sender_receipt.save!
+      conversation.touch if reply
+    end
+
+    sender_receipt
+  end
 end

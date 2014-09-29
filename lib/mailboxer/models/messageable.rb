@@ -95,6 +95,19 @@ module Mailboxer
         response.deliver true, sanitize_text
       end
 
+      # save the message and create sender receipt only
+      def save_only(conversation, reply_body, subject=nil, sanitize_text=true, attachment=nil)
+        subject = conversation.subject
+        response = Mailboxer::MessageBuilder.new({
+          :sender       => self,
+          :conversation => conversation,
+          :encrypted_body         => reply_body.encrypt(:notification_cipher),
+          :encrypted_subject      => subject.encrypt(:notification_cipher)
+        }).build
+
+        response.save_only true, sanitize_text
+      end
+
       #Replies to the sender of the message in the conversation
       def reply_to_sender(receipt, reply_body, subject=nil, sanitize_text=true, attachment=nil)
         reply(receipt.conversation, receipt.message.sender, reply_body, subject, sanitize_text, attachment)
