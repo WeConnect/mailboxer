@@ -25,6 +25,7 @@ class Mailboxer::Message < Mailboxer::Notification
 
   #Delivers a Message. USE NOT RECOMENDED.
   #Use Mailboxer::Models::Message.send_message instead.
+  # save and deliver
   def deliver(reply = false, should_clean = true)
     self.clean if should_clean
 
@@ -60,4 +61,19 @@ class Mailboxer::Message < Mailboxer::Notification
 
     sender_receipt
   end
+
+  def deliver_only(reply = false, should_clean = true)
+    #Receiver receipts
+    temp_receipts = recipients.map { |r| build_receipt(r, 'inbox') }
+
+    if temp_receipts.all?(&:save!)
+
+      Mailboxer::MailDispatcher.new(self, recipients).call
+
+      self.recipients = nil
+
+      on_deliver_callback.call(self) if on_deliver_callback
+    end
+  end
+
 end

@@ -108,6 +108,20 @@ module Mailboxer
         response.save_only true, sanitize_text
       end
 
+      def deliver_only(sender_receipt, recipients, sanitize_text=true)
+        message = sender_receipt.message
+
+        response = Mailboxer::MessageBuilder.new({
+          :sender       => self,
+          :recipients   => recipients,
+          :encrypted_body         => message.encrypted_body,
+          :encrypted_subject      => message.encrypted_subject
+        }).build
+
+        response.recipients.delete(self)
+        response.deliver_only true, sanitize_text
+      end
+
       #Replies to the sender of the message in the conversation
       def reply_to_sender(receipt, reply_body, subject=nil, sanitize_text=true, attachment=nil)
         reply(receipt.conversation, receipt.message.sender, reply_body, subject, sanitize_text, attachment)
