@@ -110,16 +110,10 @@ module Mailboxer
 
       def deliver_only(sender_receipt, recipients, sanitize_text=true)
         message = sender_receipt.message
+        message.recipients = recipients
 
-        response = Mailboxer::MessageBuilder.new({
-          :sender       => self,
-          :recipients   => recipients,
-          :encrypted_body         => message.encrypted_body,
-          :encrypted_subject      => message.encrypted_subject
-        }).build
-
-        response.recipients.delete(self)
-        response.deliver_only true, sanitize_text
+        message.recipients.delete(self)
+        message.deliver_only true, sanitize_text
       end
 
       #Replies to the sender of the message in the conversation
